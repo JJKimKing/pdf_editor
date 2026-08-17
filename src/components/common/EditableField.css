@@ -1,0 +1,105 @@
+.editable-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.editable-row__label {
+  flex: none;
+  width: var(--editable-row-label-width, 76px);
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--color-text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.editable-row__label::after {
+  content: "：";
+}
+
+.editable-row__box,
+.editable-row__input {
+  flex: 1;
+  min-width: 0;
+  height: 32px;
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-sm);
+  padding: 0 10px;
+  font-size: 13px;
+  background: var(--color-bg-panel);
+}
+
+.editable-row__box {
+  appearance: none;
+  text-align: left;
+  display: flex;
+  align-items: center;
+  cursor: default;
+}
+
+.editable-row__box:hover {
+  background: var(--color-bg-hover);
+  border-color: var(--color-accent);
+}
+
+.editable-row__text {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.editable-row__placeholder {
+  color: var(--color-text-tertiary);
+}
+
+.editable-row__input {
+  outline: none;
+  border-color: var(--color-accent);
+  box-shadow: 0 0 0 3px var(--color-accent-soft);
+}
+
+.editable-row__input:disabled {
+  opacity: 0.6;
+}
+
+.editable-row__icon-btn {
+  flex: none;
+  appearance: none;
+  width: 32px;
+  height: 32px;
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-sm);
+  background: var(--color-bg-panel);
+  font-size: 13px;
+  color: var(--color-text-secondary);
+  cursor: default;
+}
+
+.editable-row__icon-btn:hover:not(:disabled) {
+  background: var(--color-bg-hover);
+  color: var(--color-accent);
+  border-color: var(--color-accent);
+}
+
+.editable-row__icon-btn--save {
+  background: var(--color-accent);
+  border-color: var(--color-accent);
+  color: #fff;
+}
+
+.editable-row__icon-btn--save:hover:not(:disabled) {
+  background: var(--color-accent-hover);
+  color: #fff;
+}
+
+.editable-row__icon-btn--danger:hover:not(:disabled) {
+  background: var(--color-danger-soft);
+  color: var(--color-danger);
+  border-color: var(--color-danger);
+}
+
+.editable-row__icon-btn:disabled {
+  opacity: 0.5;
+}

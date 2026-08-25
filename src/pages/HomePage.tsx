@@ -3,7 +3,14 @@ import type { ViewId } from "../app/routes";
 import { DropZone } from "../components/home/DropZone";
 import { FeatureCard } from "../components/home/FeatureCard";
 import { RecentFiles } from "../components/home/RecentFiles";
-import { BatchIcon, DocxToPdfIcon, HistoryIcon, MetadataIcon, PdfToDocxIcon } from "../components/shell/icons";
+import {
+  BatchIcon,
+  DocxToPdfIcon,
+  GrayscaleIcon,
+  HistoryIcon,
+  MetadataIcon,
+  PdfToDocxIcon,
+} from "../components/shell/icons";
 import { dialogStore } from "../stores/dialogStore";
 import { handoffStore } from "../stores/handoffStore";
 import { toastStore } from "../stores/toastStore";
@@ -34,6 +41,7 @@ async function routeFiles(paths: string[], onNavigate: (view: ViewId) => void) {
       actions: [
         { label: "转换为 DOCX", value: "convert", variant: "primary" },
         { label: "编辑元数据", value: "metadata" },
+        { label: "图片灰度化", value: "grayscale" },
       ],
     });
     if (choice === "convert") {
@@ -42,6 +50,9 @@ async function routeFiles(paths: string[], onNavigate: (view: ViewId) => void) {
     } else if (choice === "metadata") {
       handoffStore.set("metadata", pdfs);
       onNavigate("metadata");
+    } else if (choice === "grayscale") {
+      handoffStore.set("grayscale", pdfs);
+      onNavigate("grayscale");
     }
     return;
   }
@@ -114,6 +125,18 @@ export function HomePage({ onNavigate }: Props) {
                 if (!selected) return;
                 handoffStore.set("metadata", Array.isArray(selected) ? selected : [selected]);
                 onNavigate("metadata");
+              }}
+            />
+            <FeatureCard
+              icon={<GrayscaleIcon />}
+              title="PDF 图片灰度化"
+              description="将彩色图片批量转换为灰度，缩小文件体积"
+              actionLabel="选择 PDF 文件"
+              onAction={async () => {
+                const selected = await open({ multiple: true, filters: [{ name: "PDF", extensions: ["pdf"] }] });
+                if (!selected) return;
+                handoffStore.set("grayscale", Array.isArray(selected) ? selected : [selected]);
+                onNavigate("grayscale");
               }}
             />
           </div>

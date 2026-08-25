@@ -1,0 +1,118 @@
+.grayscale-page {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+}
+
+.grayscale-page--drop-over {
+  outline: 2px dashed var(--color-primary);
+  outline-offset: -6px;
+}
+
+.grayscale-panel {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 20px 24px;
+  overflow-y: auto;
+}
+
+.grayscale-panel__title {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.grayscale-panel__meta {
+  margin: 0;
+  font-size: 12px;
+  color: var(--color-text-secondary);
+}
+
+.grayscale-panel__caption {
+  margin: 0 0 4px;
+  font-size: 12px;
+  color: var(--color-text-muted);
+}
+
+.grayscale-panel__action {
+  align-self: flex-start;
+  padding: 8px 18px;
+  border: none;
+  border-radius: var(--radius-sm);
+  background: var(--color-primary);
+  color: #fff;
+  font-size: 12.5px;
+  font-weight: 500;
+  cursor: default;
+}
+
+.grayscale-panel__action:hover:not(:disabled) {
+  background: var(--color-primary-hover);
+}
+
+.grayscale-panel__action:disabled {
+  background: var(--color-border);
+  color: var(--color-text-muted);
+}
+
+.grayscale-result {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 14px 16px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-card);
+  background: var(--color-surface-secondary);
+  max-width: 480px;
+}
+
+.grayscale-result--done {
+  border-color: var(--color-success);
+  background: var(--color-success-soft);
+}
+
+.grayscale-result__name {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.grayscale-result__meta {
+  font-size: 12px;
+  color: var(--color-text-secondary);
+}
+
+.grayscale-result__message {
+  margin: 0;
+  font-size: 12.5px;
+  color: var(--color-text-secondary);
+}
+
+.grayscale-result__actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 2px;
+}
+
+.grayscale-result__actions button {
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface);
+  padding: 5px 12px;
+  font-size: 12px;
+  color: var(--color-text-primary);
+  cursor: default;
+}
+
+.grayscale-result__actions button:hover:not(:disabled) {
+  background: var(--color-bg-hover);
+}
+
+.grayscale-result__actions button:disabled {
+  color: var(--color-text-muted);
+}

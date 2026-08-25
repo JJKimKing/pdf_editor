@@ -6,6 +6,7 @@ import { settingsApi } from "../api/settings";
 import { FolderIcon } from "../components/shell/icons";
 import { engineInstallStore, useEngineInstall } from "../stores/engineInstallStore";
 import { toastStore } from "../stores/toastStore";
+import { updateStore, useUpdateState } from "../stores/updateStore";
 import type { Settings } from "../types/settings";
 import { isMac } from "../utils/platform";
 import { applyTheme } from "../utils/theme";
@@ -28,6 +29,7 @@ export function SettingsPage() {
   const [appVersion, setAppVersion] = useState("");
   const install = useEngineInstall();
   const installing = install.stage !== "idle" && install.stage !== "done" && install.stage !== "failed";
+  const update = useUpdateState();
 
   useEffect(() => {
     settingsApi.get().then(setSettings);
@@ -223,6 +225,64 @@ export function SettingsPage() {
               <div className="about-block__meta">运行环境 {isMac ? "macOS" : "Windows"}</div>
               <div className="about-block__meta">© {new Date().getFullYear()} PDF Toolkit</div>
             </div>
+
+            <SettingRow label="检查更新" description="检测新版本，可在应用内直接下载并安装">
+              {(update.stage === "idle" || update.stage === "failed") && (
+                <div className="settings-page__engine-control">
+                  <button type="button" className="settings-page__install-btn" onClick={() => updateStore.check()}>
+                    检查更新
+                  </button>
+                </div>
+              )}
+              {update.stage === "checking" && <span className="settings-page__install-message">检查中…</span>}
+              {update.stage === "up_to_date" && (
+                <div className="settings-page__engine-control">
+                  <span className="settings-page__engine-badge settings-page__engine-badge--ok">已是最新版本</span>
+                  <button type="button" className="settings-page__install-retry" onClick={() => updateStore.check()}>
+                    重新检查
+                  </button>
+                </div>
+              )}
+              {update.stage === "available" && (
+                <div className="settings-page__engine-control">
+                  <span className="settings-page__engine-badge">发现新版本 v{update.latestVersion}</span>
+                  <button type="button" className="settings-page__install-btn" onClick={() => updateStore.installNow()}>
+                    立即更新
+                  </button>
+                </div>
+              )}
+              {update.stage === "downloading" && (
+                <div className="settings-page__install-progress-wrap">
+                  <div
+                    className={`settings-page__install-progress${update.determinate ? "" : " settings-page__install-progress--indeterminate"}`}
+                  >
+                    {update.determinate ? (
+                      <div
+                        className="settings-page__install-progress__fill"
+                        style={{ width: `${Math.max(4, update.progress)}%` }}
+                      />
+                    ) : (
+                      <div className="settings-page__install-progress__fill settings-page__install-progress__fill--indeterminate" />
+                    )}
+                  </div>
+                  <span className="settings-page__install-message">正在下载更新…</span>
+                </div>
+              )}
+              {update.stage === "ready" && (
+                <span className="settings-page__install-message">下载完成，即将重启完成更新…</span>
+              )}
+            </SettingRow>
+            {update.stage === "available" && update.releaseNotes && (
+              <div className="settings-page__install-hint">更新说明：{update.releaseNotes}</div>
+            )}
+            {update.stage === "failed" && (
+              <div className="settings-page__install-hint settings-page__install-hint--error">
+                {update.error}
+                <button type="button" className="settings-page__install-retry" onClick={() => updateStore.check()}>
+                  重试
+                </button>
+              </div>
+            )}
           </section>
         )}
       </div>

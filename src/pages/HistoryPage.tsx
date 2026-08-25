@@ -24,6 +24,7 @@ const VIEW_FOR_OPERATION: Record<HistoryOperation, ViewId> = {
   pdf_to_docx: "pdf-to-docx",
   docx_to_pdf: "docx-to-pdf",
   metadata_write: "metadata",
+  grayscale_images: "grayscale",
 };
 
 interface Props {
@@ -125,6 +126,7 @@ export function HistoryPage({ onNavigate }: Props) {
             <option value="pdf_to_docx">PDF → DOCX</option>
             <option value="docx_to_pdf">DOCX → PDF</option>
             <option value="metadata_write">元数据编辑</option>
+            <option value="grayscale_images">图片灰度化</option>
           </select>
           {total > 0 && (
             <button type="button" className="history-page__clear" onClick={clearAll}>

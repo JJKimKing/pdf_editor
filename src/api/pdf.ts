@@ -1,12 +1,14 @@
 /**
  * Typed wrappers around the Tauri commands defined in
- * src-tauri/src/commands/{files,metadata}.rs. This is the only module
+ * src-tauri/src/commands/{files,metadata,images}.rs. This is the only module
  * allowed to call `invoke` — components should import from here, not from
  * `@tauri-apps/api/core` directly, so the IPC surface stays in one place.
  */
 import { invoke } from "@tauri-apps/api/core";
 import type {
   BatchResult,
+  GrayscaleBatchOutcome,
+  GrayscaleOutcome,
   MetadataPatch,
   PdfBasicInfo,
   PdfMetadata,
@@ -43,4 +45,10 @@ export const pdfApi = {
 
   batchClearMetadata: (ids: string[]) =>
     invoke<BatchResult[]>("batch_clear_metadata", { ids }),
+
+  grayscaleImages: (id: string) =>
+    invoke<GrayscaleOutcome>("grayscale_images", { id }),
+
+  batchGrayscaleImages: (ids: string[]) =>
+    invoke<GrayscaleBatchOutcome[]>("batch_grayscale_images", { ids }),
 };

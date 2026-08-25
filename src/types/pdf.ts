@@ -55,6 +55,30 @@ export interface BatchResult {
   error: string | null;
 }
 
+export interface GrayscaleResult {
+  imagesTotal: number;
+  imagesConverted: number;
+  imagesSkipped: number;
+  originalSize: number;
+  newSize: number;
+  /** Path of the new grayscale file, or null if nothing was converted (source untouched, no file written). */
+  outputPath: string | null;
+}
+
+export interface GrayscaleOutcome {
+  result: GrayscaleResult;
+  /** Already registered in the backend file list — add straight to UI state. */
+  outputFile: PdfBasicInfo | null;
+}
+
+export interface GrayscaleBatchOutcome {
+  id: string;
+  success: boolean;
+  error: string | null;
+  imagesConverted: number;
+  outputFile: PdfBasicInfo | null;
+}
+
 /** Basic-mode editable field keys, in display order. */
 export const BASIC_METADATA_FIELDS = [
   "title",

@@ -2,6 +2,7 @@ import type { ReactElement } from "react";
 import { NAV_ITEMS, SETTINGS_ITEM, type ViewId } from "../../app/routes";
 import {
   DocxToPdfIcon,
+  GrayscaleIcon,
   HistoryIcon,
   HomeIcon,
   MetadataIcon,
@@ -15,6 +16,7 @@ const ICONS: Record<ViewId, (props: { className?: string }) => ReactElement> = {
   "pdf-to-docx": PdfToDocxIcon,
   "docx-to-pdf": DocxToPdfIcon,
   metadata: MetadataIcon,
+  grayscale: GrayscaleIcon,
   history: HistoryIcon,
   settings: SettingsIcon,
 };

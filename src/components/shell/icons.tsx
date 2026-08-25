@@ -93,6 +93,15 @@ export function FolderIcon(props: SVGProps<SVGSVGElement>) {
   );
 }
 
+export function GrayscaleIcon(props: SVGProps<SVGSVGElement>) {
+  return (
+    <Icon {...props}>
+      <circle cx="12" cy="12" r="8" />
+      <path d="M12 4a8 8 0 0 1 0 16Z" fill="currentColor" stroke="none" />
+    </Icon>
+  );
+}
+
 export function BatchIcon(props: SVGProps<SVGSVGElement>) {
   return (
     <Icon {...props}>

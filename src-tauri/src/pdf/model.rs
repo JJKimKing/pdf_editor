@@ -71,6 +71,20 @@ pub struct MetadataPatch {
     pub producer: Option<String>,
 }
 
+/// Outcome of a grayscale-images pass on one file.
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct GrayscaleResult {
+    pub images_total: u32,
+    pub images_converted: u32,
+    pub images_skipped: u32,
+    pub original_size: u64,
+    pub new_size: u64,
+    /// Path of the new grayscale file, or `None` if nothing was converted
+    /// (in which case the source was never touched and no file was written).
+    pub output_path: Option<String>,
+}
+
 /// Per-file outcome of a batch operation, so one failure doesn't abort the rest.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]

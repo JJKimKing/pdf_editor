@@ -8,6 +8,7 @@ export type ViewId =
   | "pdf-to-docx"
   | "docx-to-pdf"
   | "metadata"
+  | "grayscale"
   | "history"
   | "settings";
 
@@ -21,6 +22,7 @@ export const NAV_ITEMS: NavItem[] = [
   { id: "pdf-to-docx", label: "PDF 转 DOCX" },
   { id: "docx-to-pdf", label: "DOCX 转 PDF" },
   { id: "metadata", label: "PDF 元数据编辑" },
+  { id: "grayscale", label: "PDF 图片灰度化" },
   { id: "history", label: "历史记录" },
 ];
 

@@ -14,6 +14,7 @@ const VIEW_FOR_OPERATION: Record<HistoryOperation, ViewId> = {
   pdf_to_docx: "pdf-to-docx",
   docx_to_pdf: "docx-to-pdf",
   metadata_write: "metadata",
+  grayscale_images: "grayscale",
 };
 
 interface Props {

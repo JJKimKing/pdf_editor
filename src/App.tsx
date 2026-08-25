@@ -8,6 +8,7 @@ import { Sidebar } from "./components/shell/Sidebar";
 import { StatusBar } from "./components/shell/StatusBar";
 import { ToastHost } from "./components/shell/Toast";
 import { DocxToPdfPage } from "./pages/DocxToPdfPage";
+import { GrayscalePage } from "./pages/GrayscalePage";
 import { HistoryPage } from "./pages/HistoryPage";
 import { HomePage } from "./pages/HomePage";
 import { MetadataPage } from "./pages/MetadataPage";
@@ -23,6 +24,7 @@ const APP_VERSION = "0.1.0";
 function App() {
   const [view, setView] = useState<ViewId>("home");
   const [metadataStatus, setMetadataStatus] = useState<string | undefined>();
+  const [grayscaleStatus, setGrayscaleStatus] = useState<string | undefined>();
   const activeTaskCount = useActiveTaskCount();
 
   useEffect(() => {
@@ -50,11 +52,15 @@ function App() {
           {view === "pdf-to-docx" && <PdfToDocxPage />}
           {view === "docx-to-pdf" && <DocxToPdfPage />}
           {view === "metadata" && <MetadataPage onStatusChange={setMetadataStatus} />}
+          {view === "grayscale" && <GrayscalePage onStatusChange={setGrayscaleStatus} />}
           {view === "history" && <HistoryPage onNavigate={handleNavigate} />}
           {view === "settings" && <SettingsPage />}
         </main>
       </div>
-      <StatusBar context={view === "metadata" ? metadataStatus : undefined} version={APP_VERSION} />
+      <StatusBar
+        context={view === "metadata" ? metadataStatus : view === "grayscale" ? grayscaleStatus : undefined}
+        version={APP_VERSION}
+      />
       <ToastHost />
       <DialogHost />
       <ContextMenuHost />

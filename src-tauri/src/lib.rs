@@ -27,6 +27,8 @@ pub fn run() {
             tauri_plugin_autostart::MacosLauncher::LaunchAgent,
             None,
         ))
+        .plugin(tauri_plugin_updater::Builder::new().build())
+        .plugin(tauri_plugin_process::init())
         .setup(|app| {
             let handle = app.handle().clone();
             let app_data_dir = handle
@@ -66,6 +68,8 @@ pub fn run() {
             commands::metadata::clear_metadata,
             commands::metadata::batch_update_metadata,
             commands::metadata::batch_clear_metadata,
+            commands::images::grayscale_images,
+            commands::images::batch_grayscale_images,
             commands::conversion::start_conversion,
             commands::conversion::list_tasks,
             commands::conversion::cancel_task,

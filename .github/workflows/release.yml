@@ -22,6 +22,18 @@ jobs:
     runs-on: ${{ matrix.platform }}
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Read tag message as release notes
+        id: tagmsg
+        shell: bash
+        run: |
+          {
+            echo 'body<<GH_TAG_BODY_EOF'
+            git tag -l --format='%(contents)' "${{ github.ref_name }}"
+            echo 'GH_TAG_BODY_EOF'
+          } >> "$GITHUB_OUTPUT"
 
       - name: Setup Node
         uses: actions/setup-node@v4
@@ -45,6 +57,7 @@ jobs:
         with:
           tagName: ${{ github.ref_name }}
           releaseName: "PDF Toolkit ${{ github.ref_name }}"
+          releaseBody: ${{ steps.tagmsg.outputs.body }}
           releaseDraft: true
           prerelease: false
           args: ${{ matrix.args }}

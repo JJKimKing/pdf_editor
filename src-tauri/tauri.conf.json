@@ -1,7 +1,7 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
   "productName": "PDF Toolkit",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "identifier": "com.pdftoolkit.desktop",
   "build": {
     "beforeDevCommand": "npm run dev",
@@ -37,7 +37,7 @@
   },
   "plugins": {
     "updater": {
-      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IEY3NUI3NTREODVCODBGODEKUldTQkQ3aUZUWFZiOTNvOHk1bUMvY3FEWis4d2RrRzFCcHZJbmZmelEyVFU5VHpBTVNNUjZHWlEK",
+      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IEM2NURCODQ4MjZGOThGQTcKUldTbmova21TTGhkeG1JQmFuSFpuM1NoeE1IZUU4cXdWYlBEREFKUzEvbHZxYjI2ejkwTjhscUkK",
       "endpoints": [
         "https://github.com/JJKimKing/pdf_editor/releases/latest/download/latest.json"
       ]

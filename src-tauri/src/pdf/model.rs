@@ -24,6 +24,7 @@ pub struct PdfBasicInfo {
     pub created_at: Option<String>,
     /// PDF /Info ModDate, ISO 8601 if parseable, raw string otherwise.
     pub modified_at: Option<String>,
+    pub encrypted: bool,
     pub status: FileStatus,
 }
 

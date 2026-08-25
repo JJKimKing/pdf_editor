@@ -14,6 +14,7 @@ export interface PdfBasicInfo {
   pdfVersion: string;
   createdAt: string | null;
   modifiedAt: string | null;
+  encrypted: boolean;
   status: FileStatus;
 }
 

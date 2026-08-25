@@ -16,8 +16,8 @@ export const pdfApi = {
   addFiles: (paths: string[]) =>
     invoke<PdfBasicInfo[]>("add_files", { paths }),
 
-  addFolder: (dirPath: string) =>
-    invoke<PdfBasicInfo[]>("add_folder", { dirPath }),
+  addFolder: (dirPath: string, recursive: boolean) =>
+    invoke<PdfBasicInfo[]>("add_folder", { dirPath, recursive }),
 
   removeFile: (id: string) => invoke<void>("remove_file", { id }),
 

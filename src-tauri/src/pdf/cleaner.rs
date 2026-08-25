@@ -1,6 +1,7 @@
 use lopdf::Object;
 
 use crate::error::AppError;
+use crate::pdf::atomic::save_document;
 use crate::pdf::model::PdfMetadata;
 use crate::pdf::reader::{load_document, read_metadata, FIELD_ALIASES};
 
@@ -28,6 +29,18 @@ pub fn clear_metadata(path: &str) -> Result<PdfMetadata, AppError> {
         }
     }
 
-    doc.save(path)?;
-    read_metadata(path)
+    save_document(&mut doc, path)?;
+    let reread = read_metadata(path)?;
+    let still_present = reread.title.is_some()
+        || reread.author.is_some()
+        || reread.subject.is_some()
+        || reread.keywords.is_some()
+        || reread.creator.is_some()
+        || reread.producer.is_some();
+    if still_present {
+        return Err(AppError::Pdf(
+            "保存后校验失败：清空元数据未完全生效，已中止，请重试".to_string(),
+        ));
+    }
+    Ok(reread)
 }

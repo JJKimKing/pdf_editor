@@ -1,8 +1,8 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
-  "productName": "PDF Metadata Editor",
+  "productName": "PDF Toolkit",
   "version": "0.1.0",
-  "identifier": "com.pdfmetadataeditor.app",
+  "identifier": "com.pdftoolkit.desktop",
   "build": {
     "beforeDevCommand": "npm run dev",
     "devUrl": "http://localhost:1420",
@@ -12,7 +12,7 @@
   "app": {
     "windows": [
       {
-        "title": "PDF Metadata Editor",
+        "title": "PDF Toolkit",
         "width": 1200,
         "height": 800,
         "minWidth": 960,

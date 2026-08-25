@@ -1,6 +1,7 @@
 use lopdf::{Dictionary, Object, ObjectId};
 
 use crate::error::AppError;
+use crate::pdf::atomic::save_document;
 use crate::pdf::model::{MetadataPatch, PdfMetadata};
 use crate::pdf::reader::{
     is_standard_key, load_document, read_metadata, AUTHOR_ALIASES, CREATOR_ALIASES,
@@ -21,20 +22,17 @@ fn ensure_info_id(doc: &mut lopdf::Document) -> ObjectId {
     id
 }
 
-/// Which key spelling to write a field under: whichever of [primary,
-/// ...aliases] is already present in the dict, defaulting to the English
-/// primary key for a field that doesn't exist yet. Keeps us from creating a
-/// second "/Author" alongside an existing "作者" the file already used.
-fn resolve_key<'a>(dict: &Dictionary, primary: &'a str, aliases: &'a [&'a str]) -> &'a str {
-    if dict.has(primary.as_bytes()) {
-        return primary;
-    }
-    aliases.iter().find(|a| dict.has(a.as_bytes())).copied().unwrap_or(primary)
-}
-
 /// `Some("")` clears the field (removing both the primary key and any alias
-/// key present), `Some(v)` sets it (under whichever key already exists, or
-/// the English primary if none does), `None` leaves it untouched.
+/// key present), `Some(v)` sets it under the PDF-standard English `primary`
+/// key and removes any alias key, `None` leaves it untouched.
+///
+/// We used to keep writing to whichever alias key (e.g. "作者") a file
+/// already used, to avoid creating a duplicate. But readers that follow the
+/// PDF spec — WPS included — only ever look at the standard key; a value
+/// saved under a localized alias is invisible in their Properties dialog no
+/// matter how many times the file is reopened. Migrating to the standard
+/// key on first edit fixes that, at the cost of the alias key disappearing
+/// (which is what we want: one canonical key going forward).
 fn apply_field(dict: &mut Dictionary, primary: &str, aliases: &[&str], value: &Option<String>) {
     match value {
         Some(v) if v.trim().is_empty() => {
@@ -44,15 +42,55 @@ fn apply_field(dict: &mut Dictionary, primary: &str, aliases: &[&str], value: &O
             }
         }
         Some(v) => {
-            let key = resolve_key(dict, primary, aliases).to_string();
-            dict.set(key, lopdf::text_string(v));
+            dict.set(primary, lopdf::text_string(v));
+            for alias in aliases {
+                dict.remove(alias.as_bytes());
+            }
         }
         None => {}
     }
 }
 
+/// A patched field is either left alone (`None`), set to a non-empty value,
+/// or explicitly cleared (`Some("")`/whitespace-only, per `apply_field`'s
+/// semantics) — this checks a re-read value against whichever of those the
+/// caller asked for.
+fn field_matches(requested: &Option<String>, actual: &Option<String>) -> bool {
+    match requested {
+        None => true,
+        Some(v) if v.trim().is_empty() => actual.is_none(),
+        Some(v) => actual.as_deref() == Some(v.as_str()),
+    }
+}
+
+/// Re-reads the file and checks every field the caller asked to change
+/// actually landed — the write is only reported as successful once this
+/// passes. Never trust the in-memory `Document` we just wrote; the disk
+/// copy is the only thing that matters (product spec §16/§17).
+fn verify_patch_applied(path: &str, patch: &MetadataPatch) -> Result<PdfMetadata, AppError> {
+    let reread = read_metadata(path)?;
+    let checks: [(&str, &Option<String>, &Option<String>); 6] = [
+        ("标题", &patch.title, &reread.title),
+        ("作者", &patch.author, &reread.author),
+        ("主题", &patch.subject, &reread.subject),
+        ("关键词", &patch.keywords, &reread.keywords),
+        ("Creator", &patch.creator, &reread.creator),
+        ("Producer", &patch.producer, &reread.producer),
+    ];
+    for (label, requested, actual) in checks {
+        if !field_matches(requested, actual) {
+            return Err(AppError::Pdf(format!(
+                "保存后校验失败：字段 \"{label}\" 未生效（写入后重新读取的值与预期不一致），已中止，请重试"
+            )));
+        }
+    }
+    Ok(reread)
+}
+
 /// Write the fields present in `patch` into the /Info dictionary, refresh
-/// /ModDate, and save the file.
+/// /ModDate, save the file, then re-read it from disk and verify every
+/// requested field actually took — a mismatch is reported as a failure,
+/// never as a silent partial success.
 pub fn write_metadata(path: &str, patch: &MetadataPatch) -> Result<PdfMetadata, AppError> {
     let mut doc = load_document(path)?;
     let info_id = ensure_info_id(&mut doc);
@@ -68,8 +106,8 @@ pub fn write_metadata(path: &str, patch: &MetadataPatch) -> Result<PdfMetadata, 
     apply_field(dict, "Producer", PRODUCER_ALIASES, &patch.producer);
     dict.set("ModDate", Object::from(chrono::Utc::now()));
 
-    doc.save(path)?;
-    read_metadata(path)
+    save_document(&mut doc, path)?;
+    verify_patch_applied(path, patch)
 }
 
 /// Set (or overwrite) one arbitrary /Info key. Rejects the standard keys —
@@ -94,8 +132,15 @@ pub fn set_custom_field(path: &str, key: &str, value: &str) -> Result<PdfMetadat
     dict.set(key, lopdf::text_string(value));
     dict.set("ModDate", Object::from(chrono::Utc::now()));
 
-    doc.save(path)?;
-    read_metadata(path)
+    save_document(&mut doc, path)?;
+    let reread = read_metadata(path)?;
+    let persisted = reread.custom.iter().any(|f| f.key == key && f.value == value);
+    if !persisted {
+        return Err(AppError::Pdf(format!(
+            "保存后校验失败：自定义字段 \"{key}\" 未生效，已中止，请重试"
+        )));
+    }
+    Ok(reread)
 }
 
 /// Remove one custom /Info key. Refuses to touch standard keys for the same
@@ -116,6 +161,12 @@ pub fn remove_custom_field(path: &str, key: &str) -> Result<PdfMetadata, AppErro
         }
     }
 
-    doc.save(path)?;
-    read_metadata(path)
+    save_document(&mut doc, path)?;
+    let reread = read_metadata(path)?;
+    if reread.custom.iter().any(|f| f.key == key) {
+        return Err(AppError::Pdf(format!(
+            "保存后校验失败：自定义字段 \"{key}\" 仍然存在，删除未生效，已中止，请重试"
+        )));
+    }
+    Ok(reread)
 }

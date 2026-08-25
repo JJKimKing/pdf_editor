@@ -19,6 +19,61 @@ pub enum AppError {
 
     #[error("未知文件 ID: {0}")]
     UnknownId(String),
+
+    #[error("未知任务 ID: {0}")]
+    UnknownTask(String),
+
+    #[error("PDF 已加密，无法转换: {0}")]
+    Encrypted(String),
+
+    #[error("未找到转换程序，请安装 LibreOffice 后重试")]
+    EngineNotFound,
+
+    #[error("没有权限写入该目录，请选择其他输出位置: {0}")]
+    OutputDirNotWritable(String),
+
+    #[error("任务已取消")]
+    Cancelled,
+
+    #[error("{user_message}")]
+    Conversion {
+        user_message: String,
+        /// Raw stderr/exit detail for the "查看详细信息" expandable panel —
+        /// never shown as the primary message, only on demand.
+        detail: String,
+    },
+
+    #[error("{user_message}")]
+    EngineInstall {
+        user_message: String,
+        /// Raw error detail (network/verification/subprocess failure) for
+        /// the "查看详细信息" panel — same convention as `Conversion`.
+        detail: String,
+    },
+
+    #[error("本地数据库错误: {0}")]
+    Db(String),
+
+    #[error("设置读写错误: {0}")]
+    Settings(String),
+}
+
+impl From<rusqlite::Error> for AppError {
+    fn from(e: rusqlite::Error) -> Self {
+        AppError::Db(e.to_string())
+    }
+}
+
+impl AppError {
+    /// Raw developer-facing detail (stderr, exit code, …), when available.
+    /// Never rendered as the primary UI message — only behind "查看详细信息".
+    pub fn detail(&self) -> Option<&str> {
+        match self {
+            AppError::Conversion { detail, .. } => Some(detail.as_str()),
+            AppError::EngineInstall { detail, .. } => Some(detail.as_str()),
+            _ => None,
+        }
+    }
 }
 
 impl Serialize for AppError {

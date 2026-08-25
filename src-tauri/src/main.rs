@@ -2,5 +2,5 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
 fn main() {
-    pdf_metadata_editor_lib::run()
+    pdf_toolkit_lib::run()
 }

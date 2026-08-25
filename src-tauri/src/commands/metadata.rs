@@ -1,6 +1,7 @@
 use tauri::State;
 
 use crate::error::AppError;
+use crate::history::NewHistoryEntry;
 use crate::pdf::model::{BatchResult, FileStatus, MetadataPatch, PdfMetadata};
 use crate::pdf::{cleaner, reader, writer};
 use crate::state::AppState;
@@ -15,11 +16,27 @@ fn path_for(state: &AppState, id: &str) -> Result<String, AppError> {
         .ok_or_else(|| AppError::UnknownId(id.to_string()))
 }
 
+/// Flip the in-list status to "modified" and log a `metadata_write` history
+/// row — every successful save path (single or batch) funnels through here
+/// so History stays complete without each command remembering to do it.
 fn mark_modified(state: &AppState, id: &str, meta: &PdfMetadata) {
-    if let Some(f) = state.files.lock().unwrap().get_mut(id) {
+    let entry = {
+        let mut files = state.files.lock().unwrap();
+        let Some(f) = files.get_mut(id) else { return };
         f.status = FileStatus::Modified;
         f.modified_at = meta.mod_date.clone();
-    }
+        NewHistoryEntry {
+            id: uuid::Uuid::new_v4().to_string(),
+            source_path: f.file_path.clone(),
+            source_name: f.file_name.clone(),
+            operation: "metadata_write".to_string(),
+            output_path: Some(f.file_path.clone()),
+            status: "success".to_string(),
+            error: None,
+            file_size: f.file_size,
+        }
+    };
+    let _ = state.history.insert(entry);
 }
 
 /// Read the full metadata (basic + advanced /Info fields) for one file.

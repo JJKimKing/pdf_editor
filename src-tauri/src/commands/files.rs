@@ -31,6 +31,7 @@ fn read_basic_info_or_error(path: &str) -> PdfBasicInfo {
             pdf_version: "—".to_string(),
             created_at: None,
             modified_at: None,
+            encrypted: false,
             status: FileStatus::Error,
         }
     })
@@ -60,24 +61,19 @@ pub async fn add_files(
     Ok(infos)
 }
 
-/// Recursively scan a directory for `.pdf` files and add them all.
+/// Scan a directory for `.pdf` files and add them all. Non-recursive unless
+/// the caller explicitly asks — the UI always prompts before scanning
+/// subfolders rather than silently walking a large tree (product spec §50).
 #[tauri::command]
 pub async fn add_folder(
     dir_path: String,
+    recursive: bool,
     state: State<'_, AppState>,
 ) -> Result<Vec<PdfBasicInfo>, AppError> {
     let infos = tauri::async_runtime::spawn_blocking(move || {
-        WalkDir::new(&dir_path)
+        scan_dir_for_ext(&dir_path, "pdf", recursive)
             .into_iter()
-            .filter_map(|e| e.ok())
-            .filter(|e| e.file_type().is_file())
-            .filter(|e| {
-                e.path()
-                    .extension()
-                    .map(|ext| ext.eq_ignore_ascii_case("pdf"))
-                    .unwrap_or(false)
-            })
-            .map(|e| read_basic_info_or_error(&e.path().to_string_lossy()))
+            .map(|p| read_basic_info_or_error(&p))
             .collect::<Vec<_>>()
     })
     .await
@@ -85,6 +81,41 @@ pub async fn add_folder(
 
     register(&state, &infos);
     Ok(infos)
+}
+
+/// Shared non-recursive-by-default folder scan, also used by the
+/// conversion pages' "添加文件夹" via `commands::conversion::scan_folder`.
+pub(crate) fn scan_dir_for_ext(dir_path: &str, extension: &str, recursive: bool) -> Vec<String> {
+    if recursive {
+        WalkDir::new(dir_path)
+            .into_iter()
+            .filter_map(|e| e.ok())
+            .filter(|e| e.file_type().is_file())
+            .filter(|e| {
+                e.path()
+                    .extension()
+                    .map(|ext| ext.eq_ignore_ascii_case(extension))
+                    .unwrap_or(false)
+            })
+            .map(|e| e.path().to_string_lossy().to_string())
+            .collect()
+    } else {
+        std::fs::read_dir(dir_path)
+            .map(|entries| {
+                entries
+                    .filter_map(|e| e.ok())
+                    .map(|e| e.path())
+                    .filter(|p| p.is_file())
+                    .filter(|p| {
+                        p.extension()
+                            .map(|ext| ext.eq_ignore_ascii_case(extension))
+                            .unwrap_or(false)
+                    })
+                    .map(|p| p.to_string_lossy().to_string())
+                    .collect()
+            })
+            .unwrap_or_default()
+    }
 }
 
 /// Remove a single file from the list (does not touch the file on disk).

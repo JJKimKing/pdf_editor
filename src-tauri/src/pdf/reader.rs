@@ -116,6 +116,7 @@ pub fn read_basic_info(path: &str) -> Result<PdfBasicInfo, AppError> {
         pdf_version: doc.version.clone(),
         created_at: info.and_then(|d| read_date_field(d, b"CreationDate")),
         modified_at: info.and_then(|d| read_date_field(d, b"ModDate")),
+        encrypted: doc.is_encrypted(),
         status: FileStatus::Unmodified,
     })
 }

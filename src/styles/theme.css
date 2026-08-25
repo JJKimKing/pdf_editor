@@ -1,23 +1,26 @@
 :root {
-  --color-bg-app: #eef0f3;
-  --color-bg-panel: #ffffff;
-  --color-bg-sidebar: #f7f7f9;
-  --color-bg-hover: #f0f2f5;
-  --color-bg-selected: #e8f0fe;
-  --color-border: #e3e4e8;
-  --color-border-strong: #d3d5db;
+  --color-background: #f7f8fa;
+  --color-surface: #ffffff;
+  --color-surface-secondary: #fafbfc;
+  --color-sidebar-background: #f7f7f9;
+  --color-selected-background: #eaf1ff;
+  --color-bg-hover: rgba(17, 24, 39, 0.045);
+  --color-border: #e5e7eb;
+  --color-border-hover: #d3d5db;
 
-  --color-text-primary: #1d1d1f;
-  --color-text-secondary: #6e6e76;
-  --color-text-tertiary: #9a9aa2;
+  --color-text-primary: #111827;
+  --color-text-secondary: #6b7280;
+  --color-text-muted: #9a9aa2;
 
-  --color-accent: #2563eb;
-  --color-accent-hover: #1d4ed8;
-  --color-accent-soft: #eaf1ff;
+  --color-primary: #2563eb;
+  --color-primary-hover: #1d4ed8;
+  --color-primary-soft: #eaf1ff;
 
-  --color-success: #1a8a4a;
+  --color-success: #16a34a;
+  --color-success-soft: #eafaf0;
   --color-warning: #b8860b;
-  --color-danger: #d92d20;
+  --color-warning-soft: #fdf6e3;
+  --color-danger: #dc2626;
   --color-danger-soft: #fdeeed;
 
   --radius-card: 10px;
@@ -32,7 +35,64 @@
 
   --titlebar-height: 48px;
   --statusbar-height: 30px;
-  --sidebar-width: 300px;
+  --sidebar-width: 172px;
+}
+
+/* Dark palette — applied when the user picks 深色, or 跟随系统 resolves to
+   dark. Every token above has a dark counterpart here; nothing is themed
+   ad hoc outside this block (product spec §36/§34). */
+:root[data-theme="dark"] {
+  --color-background: #17181c;
+  --color-surface: #1f2024;
+  --color-surface-secondary: #26272c;
+  --color-sidebar-background: #1a1b1f;
+  --color-selected-background: rgba(59, 130, 246, 0.18);
+  --color-bg-hover: rgba(255, 255, 255, 0.06);
+  --color-border: #2e3036;
+  --color-border-hover: #3d3f47;
+
+  --color-text-primary: #f3f4f6;
+  --color-text-secondary: #9ca3af;
+  --color-text-muted: #6b7280;
+
+  --color-primary: #3b82f6;
+  --color-primary-hover: #60a5fa;
+  --color-primary-soft: rgba(59, 130, 246, 0.16);
+
+  --color-success: #22c55e;
+  --color-success-soft: rgba(34, 197, 94, 0.14);
+  --color-warning: #d4a017;
+  --color-warning-soft: rgba(212, 160, 23, 0.14);
+  --color-danger: #ef4444;
+  --color-danger-soft: rgba(239, 68, 68, 0.14);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]):not([data-theme="dark"]) {
+    --color-background: #17181c;
+    --color-surface: #1f2024;
+    --color-surface-secondary: #26272c;
+    --color-sidebar-background: #1a1b1f;
+    --color-selected-background: rgba(59, 130, 246, 0.18);
+    --color-bg-hover: rgba(255, 255, 255, 0.06);
+    --color-border: #2e3036;
+    --color-border-hover: #3d3f47;
+
+    --color-text-primary: #f3f4f6;
+    --color-text-secondary: #9ca3af;
+    --color-text-muted: #6b7280;
+
+    --color-primary: #3b82f6;
+    --color-primary-hover: #60a5fa;
+    --color-primary-soft: rgba(59, 130, 246, 0.16);
+
+    --color-success: #22c55e;
+    --color-success-soft: rgba(34, 197, 94, 0.14);
+    --color-warning: #d4a017;
+    --color-warning-soft: rgba(212, 160, 23, 0.14);
+    --color-danger: #ef4444;
+    --color-danger-soft: rgba(239, 68, 68, 0.14);
+  }
 }
 
 * {
@@ -50,7 +110,7 @@ body {
   font-family: var(--font-sans);
   font-size: 13px;
   color: var(--color-text-primary);
-  background: var(--color-bg-app);
+  background: var(--color-background);
   -webkit-font-smoothing: antialiased;
   overflow: hidden;
   user-select: none;
